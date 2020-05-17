@@ -1,0 +1,138 @@
+#include <stdio.h>
+#include "foo.h" //создал свою библиотеку, чтоб не писать всякие тайпдефы и екстёрны каждый раз
+#include <string.h>
+byte mem[MEMSIZE]; //решил, что отдельными байтами проще
+
+void b_write(adr a, byte b) {
+    mem[a] = b; // просто добавляем байт b в адрес с номером a
+}
+
+byte b_read(adr a) {
+    return mem[a]; // а тут его просто читаем
+}
+
+word w_read(adr a) {
+    word w = ((word)mem[a + 1]) << 8; // берем старший байт (у нас little endian)
+    // потом приводим к типу word (так как у нас был байт, а не слово)
+    // смещаем вперед на 8 бит, первые 8 бит заполняются нулями
+    w = w | mem[a]; // складываем (на первые 8 нулевых бит аккуратно наложится )
+    return w;
+}
+
+void w_write(adr a, word w) {
+    word w1 = w & 0xff; //отрезаем 8 последних бит
+    word w2 = w & 0xff00; //отрезаем 8 первых бит
+    w2 = w2 >> 8; // смещаем в начало
+    byte b1 = (byte) w1; //приводим все слова к байтам
+    byte b2 = (byte) w2;
+    mem[a] = b1; // тут дело техники...
+    mem[a + 1]  = b2;
+}
+
+const Command cmd[] = {
+	{0170000, 0010000, "mov",	do_mov}, // (1111)000000000000 & w = (1)000000000000,   w = (0001).. - в скобках последние 4 бита (01 в 8-ричной)
+	{0170000, 0060000, "add",	do_add}, // (1111)000000000000 & w = (110)000000000000, w = (0110).. - в скобках последние 4 бита (06 в 8-ричной)
+	{0170000, 0000000, "halt",	do_halt} // (1111)000000000000 & w = (0000)000000000000,w = (0000).. - в скобках последние 4 бита (00 в 8-ричной)
+};
+
+struct Argument sixbittodata(word w) {
+// Данная функция берет 16 битную последовательность, просматривает последние 6 бит (код destination если подать на вход w или код source если подать w >> 6)
+// выковыривает закодированную инфу о номере n регистра и mode, далее действует согласно тому, что написано в mode, в конце возвращает аргумент
+    struct Argument arg;
+	int n = w & 7; //3 бита на номер регистра
+	int mode = (w >> 3) & 7; //3 бита на номер мода
+	switch (mode) {
+	    unsigned int x;
+		case Rn0:
+			arg.adress = n; // адрес - номер регистра
+			arg.val = reg[n]; //значение - то, что лежит в регистре
+			trace (" [sixbittodata : R%o] ", n);
+			break;
+		case Rn1:
+			arg.adress = reg[n]; //в регистре лежит адрес
+			arg.val = w_read(arg.adress); // читаем с этого адреса значение
+			trace (" [sixbittodata :(R%o)] ", n);
+			break;
+		case Rn2:
+			arg.adress = reg[n];
+			arg.val = w_read(arg.adress);
+            reg[n] += 2; //все то же самое, только инкрементируем значение в регистре
+            if (n == 7)
+				trace(" [sixbittodata :#%o] ", arg.val);
+			else
+				trace(" [sixbittodata :(R%o)+] ", n);
+            break;
+/* //Все это, оказывается, не нужно для теста 01
+        case Rn3:
+			arg.adress = reg[n]; //в регистре лежит адрес
+			arg.adress = w_read(arg.adress); //в ячейке RAM PDP-11 по этому адресу тоже лежит адрес (уже итоговый)
+			arg.val = w_read(arg.adress); // по итоговому адресу читаем значение
+            reg[n] += 2; //не забываем...
+            break;
+        case Rn4:
+            reg[n] -= 2; // сначала декрементируем
+            arg.adress = reg[n]; // записываем полученный адрес
+            arg.val = w_read(arg.adress); // по нему переходим в ячейку RAM, из которой берем значение
+            break;
+        case Rn5:
+            reg[n] -= 2; // сначала декрементируем
+            arg.adress = reg[n]; // из декрементированного зайца достаем утку
+            arg.adress = w_read(arg.adress); // из утки яйцо (яйцо идет в финальный адрес)
+            arg.val = w_read(arg.adress); // из яйца иглу (игла - в финальное значение)
+            break;
+        case Rn6:
+            x = w_read(pc); // читаем текущее слово
+            pc += 2; // как обычно
+            arg.adress = x + pc; // в адрес пишем это слово плюс pc
+            arg.val = w_read(arg.adress); // читаем значение из полученного адреса
+            break;
+        case Rn7:
+            x = w_read(pc);
+            pc += 2;
+            arg.adress = x + pc;
+            arg.adress = w_read(arg.adress); // все то же самое, только теперь Кащей запрятал смерть по-дальше...
+            arg.val = w_read(arg.adress);
+            break;
+*/
+	}
+	return arg;
+};
+
+
+
+void load_file(const char * file_name) { //будем использовать только в этом файле в main, она загружает отдельные байты в RAM PDP-11
+    FILE * fin = fopen(file_name, "r"); //читаем из текстового файла
+	unsigned int start; //адрес начального блока
+	unsigned int i;
+	unsigned int data; //считываемые два 16-ричных числа (+нули после 8 бита)
+	unsigned int n; // число байт
+
+	while(fscanf(fin,"%x%x",&start, &n) == 2) { // читаем из fin пока дают читать адрес и кол-во байт
+		for (i = 0; i < n; i++) { // каждый раз i = 0 чтобы начинать запись именно со start
+	     fscanf (fin, "%x", &data); //читаем в шестнадцатиричном виде
+	     byte cdata = (byte) data; //обрезаем unsigned int, оставляя только первые 8 бит, кодирующие инфу о двух 16-ричных числах
+		 b_write (start + i, cdata); // записываем байт на i-ое место
+		}
+	}
+	fclose(fin);
+};
+  char tracechecker;
+
+int main(int argc, char * argv[]) {
+
+    if (argv[2] != NULL) {
+        if(strcmp(argv[2],"-t") == 0)
+            tracechecker = 1;
+        else
+            tracechecker = 0;
+    }
+    else
+        tracechecker = 0;
+
+
+    load_file(argv[1]); // в качестве argv[1] будет выступать какой-нибудь текстовый тест .txt написанный в командной строке первым через пробел
+    trace("--------Running---------\n");
+    run();
+    //test_mem(); // палочка-выручалочка (потом, если что, load_file перезапишет оперативу и регистры)
+    return 0;
+}
