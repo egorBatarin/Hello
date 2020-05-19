@@ -35,7 +35,7 @@ void do_add();
 void do_nothing();
 void run();
 void test_mem();
-
+void do_mul();
 
 typedef struct {
 	word mask;

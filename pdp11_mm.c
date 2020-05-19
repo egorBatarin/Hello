@@ -33,7 +33,8 @@ void w_write(adr a, word w) {
 const Command cmd[] = {
 	{0170000, 0010000, "mov",	do_mov}, // (1111)000000000000 & w = (1)000000000000,   w = (0001).. - в скобках последние 4 бита (01 в 8-ричной)
 	{0170000, 0060000, "add",	do_add}, // (1111)000000000000 & w = (110)000000000000, w = (0110).. - в скобках последние 4 бита (06 в 8-ричной)
-	{0170000, 0000000, "halt",	do_halt} // (1111)000000000000 & w = (0000)000000000000,w = (0000).. - в скобках последние 4 бита (00 в 8-ричной)
+	{0170000, 0000000, "halt",	do_halt}, // (1111)000000000000 & w = (0000)000000000000,w = (0000).. - в скобках последние 4 бита (00 в 8-ричной)
+	{0177000, 0070000, "mul",	do_mul}
 };
 
 struct Argument sixbittodata(word w) {
@@ -47,21 +48,21 @@ struct Argument sixbittodata(word w) {
 		case Rn0:
 			arg.adress = n; // адрес - номер регистра
 			arg.val = reg[n]; //значение - то, что лежит в регистре
-			trace (" [sixbittodata : R%o] ", n);
+			trace (" [R%o] ", n);
 			break;
 		case Rn1:
 			arg.adress = reg[n]; //в регистре лежит адрес
 			arg.val = w_read(arg.adress); // читаем с этого адреса значение
-			trace (" [sixbittodata :(R%o)] ", n);
+			trace (" [(R%o)] ", n);
 			break;
 		case Rn2:
 			arg.adress = reg[n];
 			arg.val = w_read(arg.adress);
             reg[n] += 2; //все то же самое, только инкрементируем значение в регистре
             if (n == 7)
-				trace(" [sixbittodata :#%o] ", arg.val);
+				trace(" [#%o] ", arg.val);
 			else
-				trace(" [sixbittodata :(R%o)+] ", n);
+				trace(" [(R%o)+] ", n);
             break;
 /* //Все это, оказывается, не нужно для теста 01
         case Rn3:
@@ -135,7 +136,7 @@ int main(int argc, char * argv[]) {
         exit(1);
     }
     load_file(argv[1]); // в качестве argv[1] будет выступать какой-нибудь текстовый тест .txt написанный в командной строке первым через пробел
-    trace("--------Running---------\n");
+    trace("-----------------------------Running-------------------------------\n");
     run();
     //test_mem(); // палочка-выручалочка (потом, если что, load_file перезапишет оперативу и регистры)
     return 0;
