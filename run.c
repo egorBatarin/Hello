@@ -45,9 +45,9 @@ void run() {
 
                     trace("(pc = %06o word = %06o  ", pc, w);
                     dd = sixbittodata(w); // расшифровываем первые 6 бит (destination), возможно, инкрементируем регистр
-                    trace("dest.adress = %d dest.val = %d ", dd.adress, dd.val );
+                    trace("dest.adress = %06o dest.val = %06o ", dd.adress, dd.val );
                     ss = sixbittodata(w >> 6); // затем расшифровываем следующие 6 бит (source), возможно, инкрементируем регистр
-                    trace("source.adress = %d source.val = %d)\n", ss.adress, ss.val );
+                    trace("source.adress = %06o source.val = %06o)\n", ss.adress, ss.val );
                 }
                 cmd[i].do_func(); // в любом случае выполняем функцию
             }
