@@ -18,17 +18,17 @@ psw=000000: cm=k pm=k pri=0        [7]
 
 --------Running---------
 <pc = 001000 word = 012700>
-(pc = 001002 word = 012700   [sixbittodata : R0] dest.adress = 0 dest.val = 0  [sixbittodata :#2] source.adress = 514 source.val = 2)
+(pc = 001002 word = 012700   [sixbittodata : R0] dest.adress = 000000 dest.val = 000000  [sixbittodata :#2] source.adress = 001002 source.val = 000002)
 <pc = 001004 word = 012701>
-(pc = 001006 word = 012701   [sixbittodata : R1] dest.adress = 1 dest.val = 0  [sixbittodata :#3] source.adress = 518 source.val = 3)
+(pc = 001006 word = 012701   [sixbittodata : R1] dest.adress = 000001 dest.val = 000000  [sixbittodata :#3] source.adress = 001006 source.val = 000003)
 <pc = 001010 word = 060001>
-(pc = 001012 word = 060001   [sixbittodata : R1] dest.adress = 1 dest.val = 3  [sixbittodata : R0] source.adress = 0 source.val = 2)
+(pc = 001012 word = 060001   [sixbittodata : R1] dest.adress = 000001 dest.val = 000003  [sixbittodata : R0] source.adress = 000000 source.val = 000002)
 <pc = 001012 word = 012702>
-(pc = 001014 word = 012702   [sixbittodata : R2] dest.adress = 2 dest.val = 0  [sixbittodata :#100] source.adress = 524 source.val = 64)
+(pc = 001014 word = 012702   [sixbittodata : R2] dest.adress = 000002 dest.val = 000000  [sixbittodata :#100] source.adress = 001014 source.val = 000100)
 <pc = 001016 word = 062712>
-(pc = 001020 word = 062712   [sixbittodata :(R2)] dest.adress = 64 dest.val = 5  [sixbittodata :#1] source.adress = 528 source.val = 1)
+(pc = 001020 word = 062712   [sixbittodata :(R2)] dest.adress = 000100 dest.val = 000005  [sixbittodata :#1] source.adress = 001020 source.val = 000001)
 <pc = 001022 word = 011205>
-(pc = 001024 word = 011205   [sixbittodata : R5] dest.adress = 5 dest.val = 0  [sixbittodata :(R2)] source.adress = 64 source.val = 6)
+(pc = 001024 word = 011205   [sixbittodata : R5] dest.adress = 000005 dest.val = 000000  [sixbittodata :(R2)] source.adress = 000100 source.val = 000006)
 <pc = 001024 word = 000000>
 ------halted------
  R0 = 000002

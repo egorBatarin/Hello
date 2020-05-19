@@ -15,11 +15,11 @@ psw=000001: cm=k pm=k pri=0      c [4]
 
 --------Running---------
 <pc = 001000 word = 012700>
-(pc = 001002 word = 012700   [sixbittodata : R0] dest.adress = 0 dest.val = 0  [sixbittodata :#3] source.adress = 514 source.val = 3)
+(pc = 001002 word = 012700   [sixbittodata : R0] dest.adress = 000000 dest.val = 000000  [sixbittodata :#3] source.adress = 001002 source.val = 000003)
 <pc = 001004 word = 012701>
-(pc = 001006 word = 012701   [sixbittodata : R1] dest.adress = 1 dest.val = 0  [sixbittodata :#177776] source.adress = 518 source.val = 65534)
+(pc = 001006 word = 012701   [sixbittodata : R1] dest.adress = 000001 dest.val = 000000  [sixbittodata :#177776] source.adress = 001006 source.val = 177776)
 <pc = 001010 word = 060001>
-(pc = 001012 word = 060001   [sixbittodata : R1] dest.adress = 1 dest.val = 65534  [sixbittodata : R0] source.adress = 0 source.val = 3)
+(pc = 001012 word = 060001   [sixbittodata : R1] dest.adress = 000001 dest.val = 177776  [sixbittodata : R0] source.adress = 000000 source.val = 000003)
 <pc = 001012 word = 000000>
 ------halted------
  R0 = 000003
