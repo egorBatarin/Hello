@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "foo.h" //создал свою библиотеку, чтоб не писать всякие тайпдефы и екстёрны каждый раз
 #include <string.h>
+#include <stdlib.h>
 byte mem[MEMSIZE]; //решил, что отдельными байтами проще
 
 void b_write(adr a, byte b) {
@@ -129,7 +130,10 @@ int main(int argc, char * argv[]) {
     else
         tracechecker = 0;
 
-
+    if (argc == 1) { // если забыли случайно добавить текстовый файл с тестом
+        printf("Error: No test File!\n");
+        exit(1);
+    }
     load_file(argv[1]); // в качестве argv[1] будет выступать какой-нибудь текстовый тест .txt написанный в командной строке первым через пробел
     trace("--------Running---------\n");
     run();
